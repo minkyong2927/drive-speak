@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>드라이브 스픽 프로토타입</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --bg:#0b0d10; --panel:#14171c; --panel2:#1b1f26; --line:#2a2f38;
+    --text:#eef1f5; --sub:#9aa3af; --dim:#5d6672;
+    --accent:#3d8bff; --ok:#2fbf71; --warn:#f2b233; --busy:#ff5a4f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#000;color:var(--text);font-family:Pretendard,"Malgun Gothic",sans-serif}
+  body{width:1920px;height:1080px;overflow:hidden;display:flex;flex-direction:column}
+
+  /* ===== 차량 화면 (1920x720) ===== */
+  .screen{width:1920px;height:720px;background:var(--bg);display:flex;flex-direction:column;border-bottom:2px solid #000}
+  .statusbar{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;color:var(--sub);font-size:20px}
+  .statusbar b{color:var(--text);font-weight:600}
+  .main{flex:1;display:flex;gap:16px;padding:0 16px 16px}
+
+  /* 내비 */
+  .navi{width:620px;background:var(--panel);border-radius:20px;position:relative;overflow:hidden}
+  .navi svg{position:absolute;inset:0}
+  .navcard{position:absolute;left:20px;top:20px;right:20px;background:rgba(20,23,28,.92);border:1px solid var(--line);border-radius:16px;padding:18px 22px;display:flex;align-items:center;gap:18px;transition:border-color .3s}
+  .navcard.on{border-color:var(--accent)}
+  .navarrow{width:56px;height:56px;border-radius:12px;background:var(--panel2);display:grid;place-items:center;font-size:34px}
+  .navtext .d{font-size:34px;font-weight:700}
+  .navtext .t{font-size:20px;color:var(--sub);margin-top:2px}
+  .eta{position:absolute;left:20px;right:20px;bottom:20px;background:rgba(20,23,28,.92);border:1px solid var(--line);border-radius:16px;padding:16px 22px;display:flex;justify-content:space-between;align-items:baseline}
+  .eta .big{font-size:34px;font-weight:700}
+  .eta .small{font-size:20px;color:var(--sub)}
+  .navvoice{position:absolute;left:20px;right:20px;top:120px;background:var(--accent);color:#fff;border-radius:14px;padding:12px 18px;font-size:22px;font-weight:600;opacity:0;transform:translateY(-8px);transition:.3s}
+  .navvoice.on{opacity:1;transform:none}
+
+  /* 앱 */
+  .app{flex:1;background:var(--panel);border-radius:20px;padding:24px 32px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+  .apphead{display:flex;justify-content:space-between;align-items:center}
+  .brand{display:flex;align-items:center;gap:12px;font-size:26px;font-weight:700}
+  .brand i{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#3d8bff,#7a5cff);display:inline-block}
+  .lesson{font-size:20px;color:var(--sub)}
+  .lesson b{color:var(--text)}
+  .progress{margin-top:16px;height:10px;background:var(--panel2);border-radius:6px;position:relative}
+  .progress .fill{position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:6px;transition:width .6s}
+  .progress .mark{position:absolute;top:-6px;width:2px;height:22px;background:var(--dim)}
+  .proglabels{position:relative;height:22px;font-size:16px;color:var(--dim);margin-top:8px}.proglabels span{position:absolute;top:0}
+
+  .loadrow{margin-top:22px;display:flex;align-items:center;gap:22px}
+  .gauge{display:flex;gap:8px}
+  .seg{width:120px;height:56px;border-radius:12px;background:var(--panel2);color:var(--dim);display:grid;place-items:center;font-size:20px;font-weight:600;transition:.25s;border:2px solid transparent}
+  .seg.on[data-l="0"]{background:rgba(47,191,113,.16);color:var(--ok);border-color:var(--ok)}
+  .seg.on[data-l="1"]{background:rgba(61,139,255,.16);color:var(--accent);border-color:var(--accent)}
+  .seg.on[data-l="2"]{background:rgba(242,178,51,.16);color:var(--warn);border-color:var(--warn)}
+  .seg.on[data-l="3"]{background:rgba(255,90,79,.18);color:var(--busy);border-color:var(--busy)}
+  .reason{font-size:21px;color:var(--sub);line-height:1.4}
+  .reason b{color:var(--text)}
+
+  .talk{flex:1;margin-top:22px;display:flex;flex-direction:column;justify-content:center;gap:18px}
+  .bubble{border-radius:18px;padding:20px 26px;max-width:1120px;transition:opacity .3s}
+  .tutor{background:var(--panel2)}
+  .tutor .who,.driver .who{font-size:17px;color:var(--sub);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .tutor .en{font-size:34px;font-weight:600;line-height:1.3}
+  .tutor .ko{font-size:21px;color:var(--sub);margin-top:6px}
+  .driver{align-self:flex-end;background:rgba(61,139,255,.14);border:1px solid rgba(61,139,255,.4)}
+  .driver .en{font-size:30px;line-height:1.3}
+  .driver .en s{color:var(--busy);text-decoration-thickness:2px}
+  .driver .en u{color:var(--ok);text-decoration:none;font-weight:600}
+  .hidden{opacity:0}
+  .mic{width:12px;height:12px;border-radius:50%;background:var(--ok);display:inline-block}
+  .mic.live{animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.25}}
+
+  .pause{position:absolute;inset:0;background:rgba(11,13,16,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;opacity:0;pointer-events:none;transition:opacity .25s}
+  .pause.on{opacity:1}
+  .pause .ic{width:96px;height:96px;border-radius:50%;border:4px solid var(--busy);display:grid;place-items:center;font-size:40px;color:var(--busy)}
+  .pause .t1{font-size:34px;font-weight:700}
+  .pause .t2{font-size:22px;color:var(--sub)}
+
+  .cards{position:absolute;inset:0;background:var(--panel);padding:28px 32px;opacity:0;pointer-events:none;transition:opacity .4s;display:flex;flex-direction:column;gap:16px}
+  .cards.on{opacity:1}
+  .cards h2{font-size:28px}
+  .cards .sub{font-size:19px;color:var(--sub)}
+  .clist{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:6px}
+  .card{background:var(--panel2);border-radius:16px;padding:18px 20px}
+  .card .bad{font-size:19px;color:var(--busy);text-decoration:line-through}
+  .card .good{font-size:23px;font-weight:600;margin-top:8px;line-height:1.35}
+  .card .note{font-size:17px;color:var(--sub);margin-top:8px}
+  .stats{display:flex;gap:16px;margin-top:4px}
+  .stat{flex:1;background:var(--panel2);border-radius:16px;padding:16px 20px}
+  .stat .n{font-size:34px;font-weight:700}
+  .stat .l{font-size:17px;color:var(--sub)}
+
+  /* ===== 시연용 신호 패널 ===== */
+  .rig{flex:1;background:#101215;padding:18px 32px;display:flex;flex-direction:column;gap:14px}
+  .righead{display:flex;justify-content:space-between;align-items:center;font-size:18px;color:var(--sub)}
+  .righead b{color:var(--text)}
+  .signals{display:flex;gap:12px}
+  .sig{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 20px;cursor:pointer;user-select:none;transition:.2s}
+  .sig .k{font-size:18px;color:var(--sub)}
+  .sig .v{font-size:34px;font-weight:700;margin-top:8px}
+  .sig.act{border-color:var(--warn);background:rgba(242,178,51,.1)}
+  .sig.act .v{color:var(--warn)}
+  .sig.blink .v{animation:pulse .6s infinite}
+  .caption{margin-top:auto;background:#000;border-radius:14px;padding:16px 24px;font-size:28px;font-weight:600;min-height:72px;display:flex;align-items:center;gap:14px}
+  .caption .tag{font-size:16px;color:#000;background:var(--warn);border-radius:6px;padding:3px 8px;font-weight:700}
+  .controls{display:flex;gap:10px}
+  .btn{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:16px;cursor:pointer;font-family:inherit}
+  body.auto .controls{display:none}
+</style>
+</head>
+<body>
+<section class="screen">
+  <div class="statusbar">
+    <span><b id="clock">08:12</b> · 맑음 7°C</span>
+    <span>Pleos Connect · 드라이브 스픽</span>
+    <span>LTE ▂▄▆</span>
+  </div>
+  <div class="main">
+    <div class="navi">
+      <svg viewBox="0 0 620 608" width="620" height="608">
+        <rect width="620" height="608" fill="#11141a"/>
+        <g stroke="#1d222b" stroke-width="18" fill="none">
+          <path d="M-20 470 H640"/><path d="M-20 250 H640"/><path d="M120 -20 V640"/><path d="M470 -20 V640"/>
+        </g>
+        <g stroke="#232934" stroke-width="8" fill="none">
+          <path d="M-20 360 H640"/><path d="M300 -20 V640"/><path d="M-20 140 H640"/>
+        </g>
+        <path id="route" d="M310 640 V470 H470 V250 H640" stroke="#3d8bff" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <g id="car" transform="translate(310 540)">
+          <circle r="22" fill="#3d8bff" opacity=".25"/>
+          <path d="M0 -14 L11 12 L0 6 L-11 12 Z" fill="#fff"/>
+        </g>
+      </svg>
+      <div class="navcard" id="navcard">
+        <div class="navarrow" id="navarrow">↑</div>
+        <div class="navtext"><div class="d" id="navdist">2.4km</div><div class="t" id="navname">올림픽대로 직진</div></div>
+      </div>
+      <div class="navvoice" id="navvoice">🔊 300m 앞에서 우회전입니다</div>
+      <div class="eta">
+        <div><div class="big" id="etamin">48분</div><div class="small">회사 · 도착 <span id="etaat">09:00</span></div></div>
+        <div class="small" id="etakm">32.1km</div>
+      </div>
+    </div>
+
+    <div class="app">
+      <div class="apphead">
+        <div class="brand"><i></i>드라이브 스픽</div>
+        <div class="lesson">오늘 수업 <b id="lessonName">출장 회화 2단원</b> · <span id="lessonPlan">도착 48분에 맞춰 구성</span></div>
+      </div>
+      <div class="progress"><div class="fill" id="pfill" style="width:0%"></div><div class="mark" style="left:80%"></div></div>
+      <div class="proglabels"><span style="left:0">도입</span><span style="left:12%">회화 연습</span><span style="left:80%">도착 전 복습</span></div>
+
+      <div class="loadrow">
+        <div class="gauge">
+          <div class="seg" data-l="0">정차</div>
+          <div class="seg" data-l="1">여유</div>
+          <div class="seg" data-l="2">보통</div>
+          <div class="seg" data-l="3">바쁨</div>
+        </div>
+        <div class="reason" id="reason">운전 여유도에 맞춰 말하기·듣기를 바꿉니다</div>
+      </div>
+
+      <div class="talk">
+        <div class="bubble tutor hidden" id="tb">
+          <div class="who">튜터</div>
+          <div class="en" id="ten"></div>
+          <div class="ko" id="tko"></div>
+        </div>
+        <div class="bubble driver hidden" id="db">
+          <div class="who"><span class="mic" id="mic"></span>나</div>
+          <div class="en" id="den"></div>
+        </div>
+      </div>
+
+      <div class="pause" id="pause">
+        <div class="ic">❚❚</div>
+        <div class="t1">운전에 집중할 시간이에요</div>
+        <div class="t2" id="pauseWhy">방향지시등 · 조향 중 — 끝나면 이어서 할게요</div>
+      </div>
+
+      <div class="cards" id="cards">
+        <h2>오늘 수업 정리</h2>
+        <div class="sub">주차 후에만 표시됩니다 · 주행 중에는 화면을 띄우지 않습니다</div>
+        <div class="stats">
+          <div class="stat"><div class="n">38분</div><div class="l">운전 중 학습</div></div>
+          <div class="stat"><div class="n">14문장</div><div class="l">직접 말한 문장</div></div>
+          <div class="stat"><div class="n">6회</div><div class="l">운전 상황으로 멈춤</div></div>
+          <div class="stat"><div class="n">3단원</div><div class="l">내일 출근길 수업</div></div>
+        </div>
+        <div class="clist">
+          <div class="card"><div class="bad">my flight is delay</div><div class="good">My flight was delayed.</div><div class="note">지나간 일은 과거형 수동태</div></div>
+          <div class="card"><div class="bad">Can I check out late time?</div><div class="good">Could I get a late check-out?</div><div class="note">호텔에서 쓰는 정해진 표현</div></div>
+          <div class="card"><div class="bad">I want receipt</div><div class="good">Could I have a receipt, please?</div><div class="note">want보다 Could I have가 정중함</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="rig">
+  <div class="righead">
+    <span><b>시연용 차량 신호</b> · Pleos Connect 에뮬레이터의 Vehicle·NaviHelper 신호를 대신합니다</span>
+    <div class="controls">
+      <button class="btn" data-a="turn">방향지시등</button>
+      <button class="btn" data-a="steer">조향</button>
+      <button class="btn" data-a="nav">내비 안내</button>
+      <button class="btn" data-a="stop">정차</button>
+      <button class="btn" data-a="rear">뒷좌석</button>
+      <button class="btn" data-a="park">주차</button>
+      <button class="btn" data-a="auto">자동 시연</button>
+    </div>
+  </div>
+  <div class="signals">
+    <div class="sig" id="s-turn"><div class="k">방향지시등</div><div class="v">꺼짐</div></div>
+    <div class="sig" id="s-steer"><div class="k">조향각</div><div class="v">0°</div></div>
+    <div class="sig" id="s-brake"><div class="k">브레이크</div><div class="v">해제</div></div>
+    <div class="sig" id="s-speed"><div class="k">속도 (위치 기반)</div><div class="v">62km/h</div></div>
+    <div class="sig" id="s-nav"><div class="k">내비 안내</div><div class="v">없음</div></div>
+    <div class="sig" id="s-seat"><div class="k">좌석 착석</div><div class="v">운전석</div></div>
+    <div class="sig" id="s-gear"><div class="k">주차 상태</div><div class="v">주행</div></div>
+  </div>
+  <div class="caption" id="caption"><span class="tag">장면</span><span id="captext">출근길, 내비 목적지를 회사로 설정하고 출발합니다</span></div>
+</section>
+
+<script>
+const $ = id => document.getElementById(id);
+const S = { turn:'off', steer:0, brake:false, speed:62, nav:null, navDist:null, rear:false, park:false };
+const LOAD_NAMES = ['정차','여유','보통','바쁨'];
+
+function computeLoad(){
+  if (S.park) return {l:0, why:'<b>주차</b> · 오늘 수업 정리를 보여줍니다'};
+  if (S.turn !== 'off') return {l:3, why:'<b>방향지시등 켜짐</b> → 말을 멈추고 기다립니다'};
+  if (Math.abs(S.steer) >= 30) return {l:3, why:'<b>큰 조향</b> → 회전이 끝날 때까지 멈춥니다'};
+  if (S.nav === 'voice') return {l:3, why:'<b>내비 안내 음성 출력 중</b> → 내비가 먼저 말합니다'};
+  if (S.nav === 'near') return {l:2, why:'<b>회전 안내 300m 이내</b> → 질문 없이 듣기만'};
+  if (S.speed === 0) return {l:0, why:'<b>정차 중</b> → 긴 문장 말하기 연습'};
+  return {l:1, why:'<b>직진 · 안내 없음</b> → 짧게 답하는 질문'};
+}
+
+function render(){
+  const {l, why} = computeLoad();
+  document.querySelectorAll('.seg').forEach(s => s.classList.toggle('on', +s.dataset.l === l));
+  $('reason').innerHTML = why;
+  $('pause').classList.toggle('on', l === 3 && !S.park);
+  if (l === 3) $('pauseWhy').textContent =
+    S.turn !== 'off' ? '방향지시등 켜짐 — 끝나면 이어서 할게요' :
+    S.nav === 'voice' ? '내비 안내가 먼저예요 — 끝나면 이어서 할게요' :
+    '회전 중 — 끝나면 이어서 할게요';
+  $('cards').classList.toggle('on', S.park);
+
+  sig('s-turn', S.turn === 'off' ? '꺼짐' : (S.turn === 'left' ? '◀ 좌측' : '우측 ▶'), S.turn !== 'off', S.turn !== 'off');
+  sig('s-steer', S.steer + '°', Math.abs(S.steer) >= 30);
+  sig('s-brake', S.brake ? '밟음' : '해제', S.brake);
+  sig('s-speed', S.speed + 'km/h', S.speed === 0);
+  sig('s-nav', S.nav === 'voice' ? '음성 출력 중' : S.nav === 'near' ? S.navDist + ' 앞 회전' : '없음', !!S.nav);
+  sig('s-seat', S.rear ? '운전석 + 뒷좌석' : '운전석', S.rear);
+  sig('s-gear', S.park ? 'P 주차' : '주행', S.park);
+
+  $('navcard').classList.toggle('on', !!S.nav);
+  $('navvoice').classList.toggle('on', S.nav === 'voice');
+}
+function sig(id, v, act, blink){
+  const el = $(id); el.querySelector('.v').textContent = v;
+  el.classList.toggle('act', !!act); el.classList.toggle('blink', !!blink);
+}
+
+/* ---- 말풍선 ---- */
+let typing = null;
+function tutor(en, ko=''){
+  clearInterval(typing);
+  $('tb').classList.remove('hidden');
+  $('ten').textContent = ''; $('tko').textContent = ko;
+  let i = 0;
+  typing = setInterval(() => {
+    if ($('pause').classList.contains('on')) { $('ten').textContent += ' —'; clearInterval(typing); return; }
+    $('ten').textContent = en.slice(0, ++i);
+    if (i >= en.length) clearInterval(typing);
+  }, 38);
+}
+function driver(html, live=true){
+  $('db').classList.remove('hidden');
+  $('den').innerHTML = html;
+  $('mic').classList.toggle('live', live);
+}
+function hideDriver(){ $('db').classList.add('hidden'); }
+function hideTutor(){ $('tb').classList.add('hidden'); clearInterval(typing); }
+function cap(t){ $('captext').textContent = t; }
+function prog(p){ $('pfill').style.width = p + '%'; }
+function nav(dist, name, arrow){ $('navdist').textContent = dist; $('navname').textContent = name; $('navarrow').textContent = arrow; }
+function eta(min, km){ $('etamin').textContent = min + '분'; $('etakm').textContent = km + 'km'; }
+function clock(t){ $('clock').textContent = t; }
+function car(x, y, r){ $('car').setAttribute('transform', `translate(${x} ${y}) rotate(${r})`); }
+
+/* ---- 자동 시연 시나리오 (약 80초) ---- */
+const wait = ms => new Promise(r => setTimeout(r, ms));
+async function scenario(){
+  document.body.classList.add('auto');
+  Object.assign(S, { turn:'off', steer:0, brake:false, speed:62, nav:null, navDist:null, rear:false, park:false });
+  hideTutor(); hideDriver(); prog(0); render();
+
+  cap('출근길, 내비 목적지를 회사로 설정하고 출발합니다');
+  await wait(2500);
+  tutor('Arriving in 48 minutes. Today: business trip English, unit 2.', '도착까지 48분, 오늘은 출장 회화 2단원을 할게요');
+  cap('튜터가 내비 도착 시간을 보고 수업 길이를 정합니다');
+  prog(4); await wait(5000);
+
+  cap('직진 구간 = 여유. 짧게 답하는 질문을 합니다');
+  tutor('Your flight was delayed. What do you tell the hotel?', '비행기가 늦었어요. 호텔에 뭐라고 말할까요?');
+  await wait(4200);
+  driver('I\'m late because my flight is delay.');
+  await wait(2600);
+  driver('I\'m late because my flight <s>is delay</s> <u>was delayed</u>.', false);
+  tutor('Good! Say "my flight was delayed". Try again.', '좋아요. "was delayed"가 자연스러워요. 다시 해볼까요?');
+  cap('말한 문장을 바로 고쳐 주고, 다시 따라 말하게 합니다');
+  prog(12); await wait(4200);
+  driver('I\'m late because my flight was delayed.');
+  await wait(2200);
+  tutor('Perfect. Next, imagine you need a late check-out and', '완벽해요. 다음은 체크아웃을 늦춰야 하는 상황인데');
+  await wait(1500);
+
+  cap('차선을 바꾸려고 방향지시등을 켜면, 튜터는 말을 멈춥니다');
+  S.turn = 'left'; S.steer = -12; render(); hideDriver();
+  await wait(1300); S.steer = -34; render(); car(300, 520, -10);
+  await wait(2600); S.steer = -8; render(); car(310, 500, 0);
+  await wait(900); S.turn = 'off'; S.steer = 0; render();
+  cap('지시등이 꺼지고 조향이 안정되면, 끊긴 문장 처음부터 다시 이어갑니다');
+  await wait(1600);
+  tutor('Let\'s continue. Imagine you need a late check-out.', '이어서 할게요. 체크아웃을 늦춰야 하는 상황이에요');
+  prog(22); await wait(4200);
+
+  cap('회전 안내 300m 전 = 보통. 질문 없이 듣기만 합니다');
+  S.nav = 'near'; S.navDist = '300m'; nav('300m', '테헤란로 방면 우회전', '↱'); eta(31, '18.4'); clock('08:29'); render(); car(310, 480, 0);
+  tutor('Listen: "Could I get a late check-out?"', '듣기만 하세요: "Could I get a late check-out?"');
+  await wait(3800);
+  cap('내비 안내 음성이 나오면 내비가 먼저 말합니다');
+  S.nav = 'voice'; render();
+  await wait(2600);
+  cap('우회전으로 크게 꺾는 동안 = 바쁨. 다시 멈춥니다');
+  S.nav = null; S.steer = 42; nav('1.1km', '테헤란로 직진', '↑'); render(); car(390, 470, 90);
+  await wait(2200);
+  S.steer = 0; render(); car(470, 400, 0);
+  await wait(1000);
+
+  cap('빨간불 정차 = 정차. 긴 문장 말하기 미션을 줍니다');
+  S.speed = 0; S.brake = true; render();
+  tutor('Mission: ask for a late check-out in two sentences.', '미션: 두 문장으로 체크아웃 연장을 부탁해 보세요');
+  prog(48); await wait(4000);
+  driver('Hi, my meeting ends at 2. Could I get a late check-out until 3?');
+  await wait(3200);
+  tutor('Excellent. Very natural!', '아주 자연스러워요!');
+  await wait(2400);
+  S.speed = 48; S.brake = false; render(); hideDriver();
+  await wait(1200);
+
+  cap('뒷좌석에 사람이 타면 혼자 수업 대신 같이 하는 모드를 제안합니다');
+  S.rear = true; render();
+  tutor('Someone joined us! Want to play a word game together?', '같이 탄 사람이 있네요. 같이 단어 게임 할까요?');
+  await wait(4200);
+  S.rear = false; render();
+
+  cap('도착 2분 전, 오늘 배운 표현 3개를 복습하고 마무리합니다');
+  eta(2, '0.7'); clock('08:58'); nav('400m', '목적지 주차장 진입', '↑'); render(); car(470, 280, 0);
+  tutor('Review: "My flight was delayed." "Could I get a late check-out?"', '복습: 오늘 표현 3개 — 내일은 3단원부터 이어갑니다');
+  prog(96); await wait(5200);
+
+  cap('주차하면 그때만 화면에 오늘의 교정 카드를 보여줍니다');
+  S.speed = 0; S.park = true; prog(100); render(); hideTutor(); hideDriver();
+  await wait(6000);
+  cap('드라이브 스픽 — 운전 상황을 읽는 AI 외국어 코치');
+  await wait(3000);
+  window.__done = true;
+}
+
+/* ---- 수동 조작 ---- */
+document.querySelectorAll('.btn').forEach(b => b.onclick = () => {
+  const a = b.dataset.a;
+  if (a === 'turn') S.turn = S.turn === 'off' ? 'left' : 'off';
+  if (a === 'steer') S.steer = Math.abs(S.steer) >= 30 ? 0 : 40;
+  if (a === 'nav') S.nav = S.nav === null ? 'near' : S.nav === 'near' ? 'voice' : null, S.navDist = '300m';
+  if (a === 'stop') { S.speed = S.speed === 0 ? 62 : 0; S.brake = S.speed === 0; }
+  if (a === 'rear') S.rear = !S.rear;
+  if (a === 'park') S.park = !S.park;
+  if (a === 'auto') return scenario();
+  render();
+});
+
+render();
+if (new URLSearchParams(location.search).has('auto')) scenario();
+</script>
+</body>
+</html>

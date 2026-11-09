@@ -1,0 +1,68 @@
+name: android
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  # 공모전 규정 파일명: 팀명_앱이름_release.apk (팀명 확정되면 여기만 바꿈)
+  TEAM_NAME: TEAM
+  APP_NAME: DriveSpeak
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Unit tests (여유도 엔진)
+        run: gradle :app:testDebugUnitTest
+
+      - name: Release signing key (빌드마다 새로 생성, 저장소에 키 없음)
+        run: |
+          PW=$(openssl rand -hex 16)
+          echo "::add-mask::$PW"
+          keytool -genkeypair -keystore "$RUNNER_TEMP/release.jks" -alias drivespeak \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass "$PW" -keypass "$PW" -dname "CN=Drive Speak"
+          {
+            echo "RELEASE_KEYSTORE=$RUNNER_TEMP/release.jks"
+            echo "RELEASE_KEYSTORE_PASSWORD=$PW"
+            echo "RELEASE_KEY_ALIAS=drivespeak"
+            echo "RELEASE_KEY_PASSWORD=$PW"
+          } >> "$GITHUB_ENV"
+
+      - name: Build release APK
+        run: gradle :app:assembleRelease
+
+      - name: Rename APK
+        run: |
+          mkdir -p dist
+          cp app/build/outputs/apk/release/app-release.apk "dist/${TEAM_NAME}_${APP_NAME}_release.apk"
+          ls -l dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: dist/*.apk
+
+      - name: GitHub Release (태그 push 시)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.apk
