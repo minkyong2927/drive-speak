@@ -10,6 +10,11 @@ import com.drivespeak.load.LoadEngine
 import com.drivespeak.load.NavGuidance
 import com.drivespeak.load.TurnSignal
 import com.drivespeak.load.VehicleSignals
+import com.drivespeak.situation.PlaceType
+import com.drivespeak.situation.SituationDetector
+import com.drivespeak.situation.SituationSignals
+import com.drivespeak.situation.Wiper
+import org.json.JSONArray
 import org.json.JSONObject
 
 /**
@@ -20,6 +25,7 @@ import org.json.JSONObject
 class MainActivity : Activity() {
 
     private val engine = LoadEngine()
+    private val situations = SituationDetector()
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,6 +50,17 @@ class MainActivity : Activity() {
             val r = engine.evaluate(fromPrototype(JSONObject(stateJson)))
             return JSONObject().put("level", r.load.level).put("reason", r.reason.name).toString()
         }
+
+        /** 프로토타입 상태 S(JSON) -> 새로 생긴 상황 [{"id":"LATE","value":12}] */
+        @JavascriptInterface
+        fun detect(stateJson: String, reset: Boolean): String {
+            if (reset) situations.reset()
+            val out = JSONArray()
+            for (e in situations.detect(situationsFromPrototype(JSONObject(stateJson)))) {
+                out.put(JSONObject().put("id", e.situation.name).put("value", e.value))
+            }
+            return out.toString()
+        }
     }
 
     companion object {
@@ -61,7 +78,26 @@ class MainActivity : Activity() {
                 "near" -> NavGuidance.TURN_AHEAD
                 else -> NavGuidance.NONE
             },
+            wiperHigh = s.optString("wiper") == "high",
         )
+
+        fun situationsFromPrototype(s: JSONObject): SituationSignals {
+            val plan = s.optString("etaPlan").split(":").let {
+                if (it.size == 2) it[0].toInt() * 60 + it[1].toInt() else null
+            }
+            return SituationSignals(
+                plannedArrivalMin = plan,
+                expectedArrivalMin = plan?.plus(s.optInt("delayMin")),
+                wiper = when (s.optString("wiper")) {
+                    "high" -> Wiper.HIGH
+                    "low" -> Wiper.LOW
+                    else -> Wiper.OFF
+                },
+                fuelPercent = s.optInt("fuel", 100),
+                passengerSeated = s.optBoolean("rear"),
+                place = if (s.optString("place") == "parking") PlaceType.PARKING else PlaceType.NONE,
+            )
+        }
 
         /** 프로토타입의 computeLoad()를 Kotlin 엔진 호출로 바꿔 끼움 */
         private val BRIDGE_JS = """
@@ -81,6 +117,9 @@ class MainActivity : Activity() {
               computeLoad = function(){
                 var r = JSON.parse(DriveSpeak.evaluate(JSON.stringify(S)));
                 return { l: r.level, why: (WHY[r.reason] || '') };
+              };
+              detectSituations = function(s, fired){
+                return JSON.parse(DriveSpeak.detect(JSON.stringify(s), fired.length === 0));
               };
               render();
             })();
