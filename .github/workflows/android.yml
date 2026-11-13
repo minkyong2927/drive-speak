@@ -11,8 +11,8 @@ permissions:
   contents: write
 
 env:
-  # 공모전 규정 파일명: 팀명_앱이름_release.apk (팀명 확정되면 여기만 바꿈)
-  TEAM_NAME: TEAM
+  # 공모전 규정 파일명: 팀명_앱이름_release.apk
+  TEAM_NAME: 이스트
   APP_NAME: DriveSpeak
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
         with:
           gradle-version: '8.11.1'
 
-      - name: Unit tests (여유도 엔진)
+      - name: Unit tests
         run: gradle :app:testDebugUnitTest
 
       - name: Release signing key (빌드마다 새로 생성, 저장소에 키 없음)
@@ -60,6 +60,19 @@ jobs:
         with:
           name: release-apk
           path: dist/*.apk
+
+      # 공모전 제출 규정: release APK 를 저장소 apk/ 폴더에 둠
+      - name: Commit APK to apk/ (main push)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p apk
+          rm -f apk/*.apk
+          cp dist/*.apk apk/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apk
+          git diff --cached --quiet || git commit -m "release APK 갱신 [skip ci]"
+          git push
 
       - name: GitHub Release (태그 push 시)
         if: startsWith(github.ref, 'refs/tags/v')

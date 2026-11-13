@@ -120,26 +120,34 @@
   .item .t{font-size:14px;color:var(--dim);display:flex;justify-content:space-between}
   .item .st{font-weight:700}
   .item.now .st{color:var(--accent)} .item.done .st{color:var(--ok)} .item.wait .st{color:var(--warn)}
-  .item .trg{font-size:15px;color:var(--sub);margin-top:3px}
-  .item .ttl{font-size:17px;font-weight:600;margin-top:2px;line-height:1.3}
+  .item .rd{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+  .item .rd span{font-size:12px;font-family:Consolas,monospace;color:var(--accent2);background:rgba(255,138,61,.1);border-radius:5px;padding:1px 6px}
+  .item .ttl{font-size:17px;font-weight:600;margin-top:4px;line-height:1.3}
+  .item .why{font-size:14px;color:var(--sub);margin-top:2px;line-height:1.35}
+  .item.note{border-left-color:var(--blue)}
+  .item.gate{border-left-color:var(--warn)}
 
   /* 주차 후 정리 */
-  .summary{position:absolute;top:0;bottom:16px;left:430px;right:16px;background:var(--panel);border-radius:20px;padding:22px 28px;opacity:0;pointer-events:none;transition:opacity .4s;display:flex;flex-direction:column;gap:10px;z-index:5}
+  .summary{position:absolute;top:0;bottom:16px;left:430px;right:16px;background:var(--panel);border-radius:20px;padding:16px 28px;opacity:0;pointer-events:none;transition:opacity .4s;display:flex;flex-direction:column;gap:7px;z-index:5}
   .summary.on{opacity:1}
   .summary h2{font-size:26px}
   .summary .sub{font-size:17px;color:var(--sub)}
   .stats{display:flex;gap:12px}
-  .stat{flex:1;background:var(--panel2);border-radius:14px;padding:12px 16px}
-  .stat .n{font-size:28px;font-weight:700}
+  .stat{flex:1;background:var(--panel2);border-radius:14px;padding:8px 16px}
+  .stat .n{font-size:24px;font-weight:700}
   .stat .l{font-size:15px;color:var(--sub)}
   .h4{font-size:16px;color:var(--sub);margin-top:2px}
-  .trail{display:flex;gap:10px;align-items:stretch}
-  .tr{flex:1;background:var(--panel2);border-radius:14px;padding:10px 14px}
-  .tr .a{font-size:14px;color:var(--sub)}
-  .tr .b{font-size:17px;font-weight:600;margin-top:3px}
-  .tr .c{font-size:13px;color:var(--dim);margin-top:3px}
+  .reflect{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .rf{background:var(--panel2);border-radius:14px;padding:8px 16px}
+  .rf .rk{font-size:14px;color:var(--accent2)}
+  .rf .row{display:flex;align-items:center;gap:10px;margin-top:6px;font-size:16px}
+  .rf .row b{width:150px;flex:none}
+  .rf .row .mt{flex:none;width:120px;height:8px;background:#232a35;border-radius:4px;overflow:hidden}
+  .rf .row .mt i{display:block;height:100%;background:var(--accent)}
+  .rf .row .ex{color:var(--sub);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rf li{font-size:16px;margin:6px 0 0 18px;line-height:1.35}
   .clist{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  .card{background:var(--panel2);border-radius:14px;padding:12px 16px;border-top:3px solid var(--accent)}
+  .card{background:var(--panel2);border-radius:14px;padding:9px 16px;border-top:3px solid var(--accent)}
   .card .why{font-size:14px;color:var(--accent2)}
   .card .bad{font-size:15px;color:var(--busy);text-decoration:line-through;margin-top:5px}
   .card .good{font-size:18px;font-weight:600;margin-top:3px;line-height:1.35}
@@ -193,6 +201,7 @@
       <div class="eta" id="etabox">
         <div class="big" id="etamin">46분</div>
         <div class="small">회사 · 도착 <span id="etaat">09:00</span> <span class="late" id="etalate"></span></div>
+        <div class="small">일정 09:00 · 싱가포르 지사 주간 회의 (영어)</div>
       </div>
     </div>
 
@@ -207,15 +216,15 @@
 
       <div class="sit base" id="sit">
         <div class="from">
-          <div class="k">차가 알려준 것</div>
-          <div class="val" id="sitval">목적지 회사 · 도착 09:00</div>
-          <div class="src" id="sitsrc">NaviHelper · 목적지·도착 예정 시간</div>
+          <div class="k">에이전트가 읽은 것</div>
+          <div class="val" id="sitval">목적지 회사 · 09:00 싱가포르 지사 회의</div>
+          <div class="src" id="sitsrc">NaviHelper 목적지 · 일정(휴대폰 연동)</div>
         </div>
         <div class="arrow">→</div>
         <div class="to">
           <div class="k">그래서 지금 연습할 것</div>
-          <div class="title" id="sittitle">출장 회화 2단원 · 46분 수업</div>
-          <div class="mode" id="sitmode">도착 시간과 길에 맞춰 구성</div>
+          <div class="title" id="sittitle">회의 첫 30초 예행연습 · 46분</div>
+          <div class="mode" id="sitmode">가는 곳에서 쓸 말을, 가는 길에</div>
         </div>
       </div>
 
@@ -245,23 +254,23 @@
     </div>
 
     <div class="panel log">
-      <h3>오늘 운전이 만든 수업</h3>
-      <div class="lsub">차량 신호와 달린 자리가 그대로 수업이 됩니다</div>
+      <h3>에이전트 판단 기록</h3>
+      <div class="lsub">무엇을 읽고, 왜 이 연습을 골랐는지</div>
       <div class="items" id="items"></div>
     </div>
 
     <div class="summary" id="summary">
-      <h2>오늘 출근길 수업 정리</h2>
+      <h2>에이전트 되돌아보기 · 오늘 출근길</h2>
       <div class="sub">주차 후에만 표시 · 주행 중에는 화면을 띄우지 않습니다</div>
       <div class="stats">
-        <div class="stat"><div class="n" id="sumMissions">0개</div><div class="l">운전이 만든 연습</div></div>
+        <div class="stat"><div class="n" id="sumMissions">0개</div><div class="l">예행연습·상황 연습</div></div>
         <div class="stat"><div class="n" id="sumSaid">0문장</div><div class="l">직접 말한 문장</div></div>
         <div class="stat"><div class="n" id="sumCut">0회</div><div class="l" id="sumCutL">중간에 끊긴 문장</div></div>
-        <div class="stat"><div class="n" id="sumWob">0회</div><div class="l">조향 흔들림으로 듣기 전환</div></div>
+        <div class="stat"><div class="n" id="sumWob">0회</div><div class="l">안전 게이트가 듣기로 낮춤</div></div>
         <div class="stat"><div class="n" id="sumTomorrow">0곳</div><div class="l">내일 같은 자리 복습 예약</div></div>
       </div>
-      <div class="h4">오늘 운전에서 생긴 상황 → 연습</div>
-      <div class="trail" id="trail"></div>
+      <div class="h4">대화 기록을 읽고 고친 학습자 기록 · <span id="rfsrc">시연 응답</span></div>
+      <div class="reflect"><div class="rf"><div class="rk">반복되는 오류 (이번 주)</div><div id="rfpat"></div></div><div class="rf"><div class="rk">내일 계획</div><ul id="rfplan"></ul></div></div>
       <div class="h4">교정 카드 · 틀린 자리에 묶어 둠</div>
       <div class="clist" id="clist"></div>
       <div class="h4">내일 출근길 수업 지도 · 📌 자리를 지날 때 오늘 틀린 표현을 다시 묻습니다</div>
@@ -272,7 +281,7 @@
 
 <section class="rig">
   <div class="righead">
-    <span><b>시연용 차량 신호</b> · Pleos Connect 에뮬레이터의 Vehicle·NaviHelper·FusedLocation 신호를 대신합니다</span>
+    <span id="rigsrc"><b>시연용 차량 신호</b> · Pleos Connect 기기에서는 Vehicle·NaviHelper SDK 신호가 이 값을 대신 채웁니다</span>
     <div class="controls">
       <button class="btn" data-a="turn">지시등</button>
       <button class="btn" data-a="steer">조향</button>
@@ -305,7 +314,7 @@
     <div class="sig" id="s-seat"><div class="k">좌석 착석</div><div class="v">운전석</div></div>
     <div class="sig" id="s-gear"><div class="k">기어</div><div class="v">D</div></div>
   </div>
-  <div class="caption"><span class="tag">장면</span><span id="captext">출근길, 내비 목적지를 회사로 설정하고 출발합니다</span></div>
+  <div class="caption"><span class="tag">장면</span><span id="captext">출근길. 내비 목적지는 회사, 9시에 영어 회의가 있습니다</span></div>
 </section>
 
 <script>
@@ -360,7 +369,16 @@ const REVIEWS = [
   { id:'r1', pos:13, wrong:'my flight is delay', good:'My flight was delayed.', ko:'비행기가 지연됐어요', day:'어제', streak:1 },
 ];
 
-/* ---- 예측·안전 되먹임을 여유도 위에 얹음 ---- */
+/* ---- 목적지·일정 (에이전트가 출발 전에 읽음) ---- */
+const DEST = { name:'회사', meetingAt:'09:00', meeting:'싱가포르 지사 주간 회의', lang:'영어', peer:'Wei' };
+
+/* ---- 학습자 기록 (LearnerModel 과 같은 생각): 오류 유형별 이번 주 횟수 ---- */
+const LEARNER0 = { 'be동사 누락': { n:4, ex:'I happy to join' } };
+let LEARNER = JSON.parse(JSON.stringify(LEARNER0));
+const FOCUS_COUNT = 3;
+const focus = () => Object.entries(LEARNER).filter(e => e[1].n >= FOCUS_COUNT).sort((a, b) => b[1].n - a[1].n)[0];
+
+/* ---- 예측·안전 되먹임을 여유도 위에 얹음 (안전 게이트: 에이전트가 넘을 수 없는 규칙) ---- */
 function plan(){
   const base = computeLoad(); let l = base.l, note = null;
   const p = predict(S.pos);
@@ -386,39 +404,66 @@ function addMin(hhmm, m){ const [h, mm] = hhmm.split(':').map(Number); const t =
 function mission(sit){
   const v = sit.value;
   switch (sit.id){
+    case 'OPEN': return {
+      icon:'🎯', src:'NaviHelper 목적지 · 일정(휴대폰 연동)',
+      val:`${DEST.meetingAt} <em>${DEST.meeting}</em> (${DEST.lang})`,
+      title:'회의를 여는 첫 문장', short:'회의 첫 문장',
+      read:['내비.목적지','일정.조회'], why:'도착하면 바로 쓸 말부터. 직진 구간이라 짧은 질문',
+      tutor:[`Your nine o'clock is in English. How do you open the meeting?`, '9시 회의를 어떻게 시작할까요? 인사와 주제를 말해 보세요'],
+      listen:['Listen: "Good morning, everyone. Thanks for joining."', '듣기: 회의를 여는 인사'] };
+    case 'AGENDA': { const f = focus(); return {
+      icon:'🎯', src:'길 기억 · 예약해 둔 신호',
+      val:'평균 62초 정차 · <em>긴 말하기 예약 자리</em>',
+      title:'늦은 사과와 오늘 안건, 두 문장으로', short:'안건 소개',
+      read:['길기억.앞구간','학습자.기록'], why: f ? `'${f[0]}' 이번 주 ${f[1].n}회 → be going to 문형을 넣음` : '정차 시간이 길어 두 문장 말하기',
+      tutor:['Two sentences: say sorry for being late, then today\'s agenda.', '두 문장으로: 늦어서 미안하다고, 그리고 오늘 안건을 말해 보세요'],
+      listen:['Listen: "Sorry I\'m late. Today we\'re going to go over the launch schedule."', '듣기: 사과와 안건 소개'] }; }
     case 'LATE': return {
       icon:'⏱', src:'NaviHelper · 도착 예정 시간',
       val:`도착 예정 ${S.etaPlan} → ${addMin(S.etaPlan, v)} <em>(+${v}분)</em>`,
-      title:`팀장님께 ${v}분 늦는다고 전화하기`, short:`${v}분 지각 전화`,
-      tutor:[`Role-play. I'm your manager. You're ${v} minutes late. Ring ring... Hello?`, `상황극: 제가 팀장이에요. ${v}분 늦는다고 전화해 보세요`],
+      title:`회의에 ${v}분 늦는다고 알리기`, short:`${v}분 지각 알림`,
+      read:['내비.도착예정','일정.조회'], why:`회의 ${DEST.meetingAt}, 도착 ${addMin(S.etaPlan, v)} → 계획을 바꿔 지각 알림부터`,
+      tutor:[`Role-play: I'm ${DEST.peer} in Singapore. You're ${v} minutes late. What do you say?`, `상황극: 싱가포르 지사 ${DEST.peer}예요. ${v}분 늦는다고 말해 보세요`],
       listen:[`Listen: "I'm running about ${v} minutes late."`, `듣기: "${v}분 정도 늦을 것 같아요"`] };
     case 'RAIN': return {
       icon:'🌧', src:'Vehicle · 와이퍼',
       val:`와이퍼 ${v === 2 ? '고속' : '작동'} · 비 시작`,
-      title:'비 오는 날 스몰톡', short:'비 스몰톡',
-      tutor:['Small talk: tell your coworker about the rain on your way in.', '스몰톡: 출근길 비 이야기를 동료에게 해 보세요'],
-      listen:['Listen: "It\'s really coming down out there."', '듣기: "밖에 비가 엄청 와요" — 와이퍼 고속이라 질문은 하지 않아요'] };
+      title:'회의 전 스몰톡: 오늘 비 이야기', short:'비 스몰톡',
+      read:['차량.와이퍼'], why:'회의 시작 전 스몰톡 소재로 씀',
+      tutor:['Small talk before the meeting: tell them about the rain.', '회의 전 스몰톡: 오는 길에 비가 왔다고 말해 보세요'],
+      listen:['Listen: "It\'s really coming down out there."', '듣기: "밖에 비가 엄청 와요"'] };
     case 'LOW_FUEL': return {
       icon:'⛽', src:'Vehicle · 연료 잔량',
       val:`연료 <em>${v}%</em> · 경로 근처 주유소 1.2km`,
       title:'주유소에서 가득 채워 달라고 하기', short:'주유소 표현',
+      read:['차량.연료'], why:'오늘 목적지와 무관한 상황 → 정차 때만 꺼냄',
       tutor:['Mission: ask the attendant to fill it up and pay by card.', '미션: 가득 채워 달라고, 카드로 낸다고 말해 보세요'],
       listen:['Listen: "Fill it up with regular, please."', '듣기: "일반유로 가득이요"'] };
     case 'PASSENGER': return {
       icon:'👧', src:'Vehicle · 좌석 착석',
       val:'뒷좌석 착석 감지', title:'같이 하는 단어 퀴즈', short:'동승자 퀴즈',
+      read:['차량.착석'], why:'동승자가 있으면 회의 연습 대신 함께 하는 퀴즈',
       tutor:['Someone joined us! Want to play a word game together?', '같이 탄 사람이 있네요. 단어 게임 할까요?'],
       listen:['Listen: "What color is a banana?"', '듣기: "바나나는 무슨 색일까?"'] };
     case 'PARKING': return {
       icon:'🅿', src:'FusedLocation · 장소 유형',
       val:'목적지 주차장 진입', title:'주차 정산 표현 한 마디', short:'주차 표현',
+      read:['위치.장소유형'], why:'주차장이라 한 마디만',
       tutor:['One phrase: "Can I get my parking validated?"', '한 마디: "주차 도장 받을 수 있나요?"'],
       listen:['Listen: "Can I get my parking validated?"', '듣기: "주차 도장 받을 수 있나요?"'] };
   }
 }
+/* 목적지 예행연습 목표: 계획 단계에서 정해 두고, 조건이 맞는 자리에서 꺼냄 */
+function dueGoals(s, l, fired){
+  const out = [];
+  if (!fired.includes('OPEN') && s.pos >= 5 && s.pos < 60) out.push({ id:'OPEN', value:0 });
+  if (!fired.includes('AGENDA') && l === 0 && !s.park && s.pos >= 55) out.push({ id:'AGENDA', value:0 });
+  return out;
+}
 function reviewMission(r){
   return {
     icon:'📍', src:'FusedLocation · 경로 위치 + 지난 학습 기록',
+    read:['위치.경로위치','기억.복습목록'], why:`${r.day} 이 자리에서 틀림 · 간격 복습 ${r.streak + 1}회차`,
     val:`${r.day} <em>바로 이 자리</em>에서 틀린 표현`,
     title:'같은 자리에서 다시 말해 보기', short:'장소 복습', modeText:`장소 복습 · ${placeName(r.pos)} · ${r.streak + 1}회차`,
     tutor:[`Yesterday, right here: how do you say "${r.ko}"?`, `어제 바로 여기서 배운 표현이에요. "${r.ko}"를 영어로?`],
@@ -426,7 +471,7 @@ function reviewMission(r){
 }
 
 /* ===== 화면 상태 ===== */
-const LOG = [];        // 오늘 운전이 만든 수업
+const LOG = [];        // 에이전트 판단 기록 (연습 + 읽기·계획·게이트 메모)
 const FIRED = [];      // 이미 만든 상황
 const QUEUE = [];      // 여유가 생기면 꺼낼 상황
 const CARDS = [];      // 오늘 교정 (틀린 자리 포함)
@@ -435,15 +480,16 @@ let lastLoad = 1, lastNote = null, current = null, preQuiet = false, lastGood = 
 
 function render(){
   const { l, note, p } = plan();
-  if (note === 'PRE_BUSY' && lastNote !== 'PRE_BUSY') { preQuiet = true; predicted++; }
+  if (note === 'PRE_BUSY' && lastNote !== 'PRE_BUSY') { preQuiet = true; predicted++;
+    memo('🛡', ['길기억.앞구간'], '안전 게이트: 새 질문 보류', `${fmtSec(p.secs)} 뒤 ${p.name} · ${p.rate} 바빴음`, 'gate'); }
   if (l === 3 && lastLoad !== 3) { pauses++; onBusy(); }
   if (l !== 3 && lastLoad === 3) onCalm();
   if (note === 'WOBBLE' && lastNote !== 'WOBBLE') onWobble();
   lastLoad = l; lastNote = note;
 
   const chip = $('loadchip'); chip.className = 'chip l' + (note === 'PRE_BUSY' ? 2 : l);
-  $('loadtxt').textContent = note === 'WOBBLE' ? '조향 흔들림 → 듣기로 낮춤'
-    : note === 'PRE_BUSY' ? `곧 ${p.label} 구간 → 새 질문 보류` : LOAD[l].txt;
+  $('loadtxt').textContent = '안전 게이트 · ' + (note === 'WOBBLE' ? '조향 흔들림 → 듣기만 허용'
+    : note === 'PRE_BUSY' ? `곧 ${p.label} 구간 → 새 질문 보류` : LOAD[l].txt + (l < 3 ? ' 허용' : ''));
   $('pause').classList.toggle('on', l === 3 && !S.park);
   $('pauseT').textContent = S.nav === 'voice' ? '길 안내가 먼저예요' : '운전에 집중할 시간이에요';
   $('pauseWhy').textContent = S.turn !== 'off' ? '방향지시등 켜짐 — 끝나면 이어서 할게요'
@@ -470,7 +516,7 @@ function render(){
   drawRoute(p, note);
 
   // 새 상황·장소 복습 감지 → 기록·대기열
-  const fresh = detectSituations(S, FIRED).map(s => ({ ...s, m: mission(s) }));
+  const fresh = detectSituations(S, FIRED).concat(dueGoals(S, l, FIRED)).map(s => ({ ...s, m: mission(s) }));
   for (const r of REVIEWS) if (!r.fired && Math.abs(r.pos - S.pos) <= 1.5) { r.fired = true; fresh.push({ id:'REVIEW', value:0, m: reviewMission(r), review: r }); }
   for (const s of fresh) {
     if (s.id !== 'REVIEW') FIRED.push(s.id);
@@ -502,30 +548,47 @@ function drawRoute(p, note){
 }
 function pin(pos, icon, done){ const d = document.createElement('div'); d.className = 'pin' + (done ? ' done' : ''); d.style.left = pos + '%'; d.textContent = icon; $('bar').appendChild(d); }
 
+function memo(icon, read, title, why, cls = 'note'){
+  LOG.push({ kind: cls, at: $('clock').textContent, pos: S.pos, state:'done', m:{ icon, read, title, why } });
+  drawLog();
+}
+const missions = () => LOG.filter(it => !it.kind);
 function drawLog(){
   const box = $('items'); box.innerHTML = '';
-  LOG.slice(-5).forEach(it => {
+  LOG.slice(-4).forEach(it => {
     const d = document.createElement('div');
-    d.className = 'item ' + it.state + (it.drawn ? ' in' : '');
-    const st = { wait:'여유 생기면', now:'연습 중', done:'완료' }[it.state];
+    d.className = 'item ' + (it.kind || it.state) + (it.drawn ? ' in' : '');
+    const st = it.kind === 'gate' ? '규칙' : it.kind === 'note' ? '판단' : { wait:'여유 생기면', now:'연습 중', done:'완료' }[it.state];
     d.innerHTML = `<div class="t"><span>${it.at} · ${placeName(it.pos)}</span><span class="st">${st}</span></div>
-      <div class="trg">${it.m.icon} ${it.m.val.replace(/<[^>]+>/g,'')}</div><div class="ttl">${it.m.title}</div>`;
+      <div class="rd">${(it.m.read || []).map(r => `<span>${r}</span>`).join('')}</div>
+      <div class="ttl">${it.m.icon} ${it.m.title}</div><div class="why">${it.gated || it.m.why || ''}</div>`;
     box.appendChild(d);
     if (!it.drawn) { it.drawn = true; requestAnimationFrame(() => requestAnimationFrame(() => d.classList.add('in'))); }
   });
 }
+/* 출발 전 계획: 에이전트가 읽은 것과 정한 것 */
+const PLAN_NOTES = () => {
+  const f = focus();
+  return [
+    ['📖', ['내비.목적지','일정.조회'], `${DEST.meetingAt} ${DEST.meeting} (${DEST.lang})`, `목적지 ${DEST.name} · 도착 ${S.etaPlan} · 도착하자마자 회의`],
+    ['📖', ['길기억.조회','기억.복습목록','학습자.기록'], f ? `약점: ${f[0]} ${f[1].n}회 · 복습 ${REVIEWS.length}건` : `복습 ${REVIEWS.length}건`, '같은 길 12회 기록: 긴 신호 2곳, 늘 바쁜 구간 2곳'],
+    ['🗺', ['미션.예약'], '오늘 계획: 회의 첫 30초 예행연습', '첫 문장은 직진 구간에, 안건 소개는 62초 신호에 예약'],
+  ];
+};
 
 function showSituation(m, l){
   const sit = $('sit'); sit.classList.remove('base','flash'); void sit.offsetWidth; sit.classList.add('flash');
   $('sitval').innerHTML = m.val; $('sitsrc').textContent = m.src;
   $('sittitle').textContent = m.title;
-  $('sitmode').textContent = l === 2 ? '지금은 주의 구간 → 듣기 버전으로' : (m.modeText || LOAD[l].mode);
+  $('sitmode').textContent = l === 2 ? '안전 게이트: 듣기만 허용 → 듣기 버전으로' : (m.modeText || LOAD[l].mode);
 }
 
 /* 상황 연습 시작: 여유도에 따라 말하기/듣기 버전 */
 function startMission(item, l){
   if (current && current.state === 'now') current.state = 'done';
-  current = item; item.state = 'now'; drawLog();
+  current = item; item.state = 'now';
+  if (l === 2) item.gated = '에이전트 제안: 말하기 → 안전 게이트: 듣기만 허용';
+  drawLog();
   showSituation(item.m, l);
   const [en, ko] = l === 2 ? item.m.listen : item.m.tutor;
   tutor(en, ko, l !== 2);
@@ -569,6 +632,7 @@ function onCalm(){
 /* 말하는 동안 조향이 흔들리면: 답을 요구하지 않고 듣기로 */
 function onWobble(){
   wobbles++;
+  memo('🛡', ['차량.조향'], '안전 게이트: 말하기 → 듣기', `6초 안에 조향 반전 ${S.wobble}회 · 말하기가 운전에 부담`, 'gate');
   if (rec && listening) rec.abort();
   const target = lastGood || (current ? current.m.listen[0].replace(/^Listen( again)?: /, '').replace(/"/g, '') : '');
   tutor(target ? `No rush. Just listen: "${target}"` : 'No rush. Just listen for now.', '급하지 않아요. 지금은 듣기만 하세요');
@@ -599,28 +663,48 @@ function listen(){
 function escapeHtml(s){ return s.replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c])); }
 
 /* ---- 교정: Claude (라이브) / 시연 응답 (키 없을 때) ---- */
+const TURNS = [];   // 오늘 대화 기록 (주차 후 되돌아보기에 씀)
 function keep(text, r){   // 교정을 틀린 자리에 묶어 둠 → 내일 같은 자리에서 복습
   lastGood = r.corrected;
-  CARDS.push({ why: current ? current.m.short : '출장 회화 2단원', bad: text, good: r.corrected, note: r.tip_ko, pos: S.pos, place: placeName(S.pos) });
+  const type = r.type || r.error_type_ko || '';
+  CARDS.push({ why: current ? current.m.short : '예행연습', bad: text, good: r.corrected, note: r.tip_ko, type, pos: S.pos, place: placeName(S.pos) });
+  if (type) {
+    const e = LEARNER[type] = LEARNER[type] || { n:0, ex:'' }; e.n++; e.ex = text;
+    memo('🧠', ['학습자.기록쓰기','기억.복습예약'], `'${type}' 이번 주 ${e.n}회째`, e.n >= FOCUS_COUNT ? '반복되는 약점 → 다음 긴 말하기에 이 문형을 넣음' : '틀린 자리에 묶어 내일 같은 자리에서 복습');
+  }
   drawRoute(predict(S.pos), lastNote);
+}
+/* 안전 게이트: 에이전트가 고른 행동을 지금 허용 범위로 낮춤 (SafetyGate 와 같은 규칙) */
+const ACTIONS = ['ask_long', 'ask_short', 'listen_only', 'wait'];
+function gate(action){
+  const { l, note } = plan();
+  const top = Math.max(l, note ? 2 : 0);            // 0 긴 말하기 · 1 짧은 질문 · 2 듣기만 · 3 대기
+  const want = Math.max(0, ACTIONS.indexOf(action));
+  return { action: ACTIONS[Math.max(want, top)], lowered: want < top };
 }
 async function answer(text){
   said++;
-  const ctx = current ? current.m.title : '출장 회화 2단원';
+  const ctx = current ? current.m.title : '회의 첫 30초 예행연습';
   const l = plan().l;
   let r;
   try { r = client ? await askClaude(text, ctx, l) : demoCorrect(text); }
   catch (e) { console.warn(e); r = demoCorrect(text); }
+  TURNS.push({ practice: ctx, said: text, corrected: r.corrected || '', type: r.type || r.error_type_ko || '' });
   if (!r.ok && r.corrected) { driver(escapeHtml(text), '→ ' + r.corrected, false); keep(text, r); }
   if (r.ok && current && current.review) { current.review.done = true; current.review.streak++; current.state = 'done'; drawLog(); }
-  if (plan().l < 3) tutor(r.reply, r.reply_ko, l <= 1 && !r.ok);
+  // 다음 행동은 에이전트가 고르고, 안전 게이트가 허용 범위로 낮춤
+  const g = gate(r.action || (r.ok ? 'listen_only' : 'ask_short'));
+  if (g.lowered && r.action) memo('🛡', ['차량.상태'], `안전 게이트: ${r.action} → ${g.action}`, '에이전트가 고른 행동이 지금 허용 범위를 넘어 낮춤', 'gate');
+  if (g.action !== 'wait') tutor(r.reply, r.reply_ko, g.action === 'ask_long' || g.action === 'ask_short');
 }
 
 const DEMO = [
-  { re:/flight is delay/i, corrected:'My flight was delayed.', tip_ko:'지난 일은 과거형 수동태', reply:'Good! Say "my flight was delayed". Try again.', reply_ko:'좋아요. "was delayed"가 자연스러워요. 다시 해볼까요?' },
-  { re:/will late|be late \d+|late \d+ minute/i, corrected:"I'm going to be about 12 minutes late.", tip_ko:'"will late" 대신 be going to be ~ late', reply:'Close! "I\'m going to be about 12 minutes late." Say it once more.', reply_ko:'거의 맞았어요. 한 번 더 말해 볼까요?' },
-  { re:/raining very much|rain very much|many rain/i, corrected:"It's pouring out there.", tip_ko:'비가 많이 올 땐 pouring', reply:'Nice. Natives say "It\'s pouring out there."', reply_ko:'원어민은 "pouring"을 많이 써요' },
-  { re:/full please|fill full|oil full/i, corrected:'Fill it up with regular, please. Can I pay by card?', tip_ko:'주유는 fill it up, 휘발유는 regular', reply:'Almost. "Fill it up with regular, please."', reply_ko:'"Fill it up"이 정해진 표현이에요' },
+  { re:/discuss about/i, type:'불필요한 전치사', corrected:"I'd like to discuss the launch schedule.", tip_ko:'discuss 뒤에는 about 없이', reply:'Good start. Just "discuss the schedule", no "about".', reply_ko:'좋은 시작이에요. discuss 뒤에 about은 빼요' },
+  { re:/flight is delay/i, type:'be동사 누락', corrected:'My flight was delayed.', tip_ko:'지난 일은 과거형 수동태', reply:'Good! Say "my flight was delayed". Try again.', reply_ko:'좋아요. "was delayed"가 자연스러워요. 다시 해볼까요?' },
+  { re:/will late|be late \d+|late \d+ minute/i, type:'be동사 누락', corrected:"I'm going to be about 12 minutes late.", tip_ko:'"will late" 대신 be going to be ~ late', reply:'Close! "I\'m going to be about 12 minutes late." Once more.', reply_ko:'거의 맞았어요. 한 번 더 말해 볼까요?' },
+  { re:/we going to|today we going/i, type:'be동사 누락', corrected:"Today we're going to go over the launch schedule.", tip_ko:"we're going to: be동사를 살려요", reply:'Almost. "We\'re going to go over the schedule."', reply_ko:'거의 맞았어요. we\'re를 살려 주세요' },
+  { re:/raining very much|rain very much|many rain/i, type:'어색한 표현', corrected:"It's pouring out there.", tip_ko:'비가 많이 올 땐 pouring', reply:'Nice. Natives say "It\'s pouring out there."', reply_ko:'원어민은 "pouring"을 많이 써요' },
+  { re:/full please|fill full|oil full/i, type:'정해진 표현', corrected:'Fill it up with regular, please. Can I pay by card?', tip_ko:'주유는 fill it up, 휘발유는 regular', reply:'Almost. "Fill it up with regular, please."', reply_ko:'"Fill it up"이 정해진 표현이에요' },
 ];
 function demoCorrect(text){
   const d = DEMO.find(x => x.re.test(text));
@@ -631,7 +715,8 @@ function demoCorrect(text){
 let client = null;
 const CHAT = [];
 async function askClaude(text, ctx, l){
-  CHAT.push({ role:'user', content:`[지금 연습: ${ctx} / 운전 여유도 ${l} (${LOAD[l].txt})]\nDriver said: "${text}"` });
+  const f = focus();
+  CHAT.push({ role:'user', content:`[지금 연습: ${ctx} / 운전 여유도 ${l} (${LOAD[l].txt})` + (f ? ` / 이번 주 반복 오류: ${f[0]} ${f[1].n}회` : '') + `]\nDriver said: "${text}"` });
   const res = await client.beta.messages.create({
     model: 'claude-opus-5-5',
     max_tokens: 2000,
@@ -641,24 +726,60 @@ async function askClaude(text, ctx, l){
       effort: 'low',
       format: { type:'json_schema', schema: {
         type:'object', additionalProperties:false,
-        required:['ok','corrected','tip_ko','reply','reply_ko'],
+        required:['ok','corrected','error_type_ko','tip_ko','reply','reply_ko','action'],
         properties:{
           ok:{ type:'boolean', description:'true if the sentence was already natural' },
           corrected:{ type:'string', description:'one natural sentence, empty if ok' },
+          error_type_ko:{ type:'string', description:'short Korean label of the error type, e.g. "be동사 누락", "불필요한 전치사"; empty if ok. Reuse the label given in the context when it is the same kind of error.' },
           tip_ko:{ type:'string', description:'Korean, under 20 characters' },
           reply:{ type:'string', description:'tutor reply in English, max 15 words' },
-          reply_ko:{ type:'string' } } } },
+          reply_ko:{ type:'string' },
+          action:{ type:'string', enum:['ask_long','ask_short','listen_only','wait'], description:'what the tutor does next: ask for two sentences, ask a short question, only let the driver listen, or wait' } } } },
     },
-    system: 'You are an English conversation tutor speaking to a driver through car speakers. ' +
-      'The app tells you the current practice situation, which comes from live vehicle signals, and the driving load level. ' +
-      'Correct the driver in one natural sentence, then reply in at most 15 words. ' +
-      'At load 1 ask only questions with short answers; at load 0 you may ask for two sentences; at load 2 do not ask any question.',
+    system: 'You are an English conversation tutor riding along with a driver, speaking through car speakers. ' +
+      `The driver is heading to: ${DEST.name}. On arrival they have a ${DEST.meetingAt} meeting in English (${DEST.meeting}). ` +
+      'Your goal is to rehearse what the driver will actually need to say there, during the drive. ' +
+      'The app tells you the current practice, the driving load level, and the error type the driver keeps repeating this week. ' +
+      'Correct the driver in one natural sentence, label the error type, then reply in at most 15 words. ' +
+      'When the driver repeats a known error type, steer the next prompt toward that pattern. ' +
+      'Choose the next action yourself. A separate safety gate may lower it, so never argue with the load level.',
     messages: CHAT,
   });
   if (res.stop_reason === 'refusal') throw new Error('refusal');
   const t = res.content.find(b => b.type === 'text');
   CHAT.push({ role:'assistant', content: res.content });
   return JSON.parse(t.text);
+}
+
+/* 주차 후 되돌아보기: 오늘 대화 기록 → 반복 오류와 내일 계획 (라이브에서는 Claude 가 씀) */
+async function reflect(){
+  const f = focus();
+  const local = {
+    patterns: Object.entries(LEARNER).sort((a, b) => b[1].n - a[1].n).slice(0, 3).map(([type, e]) => ({ type, count: e.n, example: e.ex })),
+    plan: [ f ? `'${f[0]}'을 다음 주 목표로 유지하고 긴 말하기에 계속 넣음` : '반복되는 오류 없음 → 새 문형으로 넘어감',
+      `📌 오늘 틀린 ${CARDS.length}곳을 내일 같은 자리에서 다시 묻기`, '내일 목적지와 일정을 읽고 예행연습을 새로 짬' ],
+  };
+  if (!client || !TURNS.length) return local;
+  try {
+    const res = await client.beta.messages.create({
+      model: 'claude-opus-5-5', max_tokens: 4000,
+      betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default',
+      output_config: { effort: 'low', format: { type:'json_schema', schema: {
+        type:'object', additionalProperties:false, required:['patterns','plan'],
+        properties:{
+          patterns:{ type:'array', items:{ type:'object', additionalProperties:false, required:['type','count','example'],
+            properties:{ type:{ type:'string', description:'Korean label' }, count:{ type:'integer' }, example:{ type:'string', description:'what the driver said' } } } },
+          plan:{ type:'array', items:{ type:'string', description:'one Korean line, under 40 characters' } } } } } },
+      system: 'You are the after-drive reflection step of an in-car English tutor agent. ' +
+        'Read today\'s practice turns and the learner record so far. Return up to 3 recurring error patterns with this week\'s total counts ' +
+        '(record so far plus today), and 3 short Korean lines for tomorrow\'s plan.',
+      messages: [{ role:'user', content: JSON.stringify({ destination: DEST, learner_record_before_today: LEARNER0, today_turns: TURNS }) }],
+    });
+    if (res.stop_reason === 'refusal') return local;
+    const out = JSON.parse(res.content.find(b => b.type === 'text').text);
+    $('rfsrc').textContent = 'Claude';
+    return out;
+  } catch (e) { console.warn(e); return local; }
 }
 
 async function goLive(){
@@ -670,7 +791,8 @@ async function goLive(){
     $('aichip').textContent = '교정: Claude'; $('aichip').classList.add('live');
   } else { $('aichip').textContent = '교정: 시연 응답 · 음성 켜짐'; }
   $('apikey').value = ''; $('keybox').classList.remove('on');
-  tutor('Arriving in 46 minutes. Your flight was delayed. What do you tell the hotel?', '비행기가 늦었어요. 호텔에 뭐라고 말할까요?', true);
+  if (S.pos < 6) S.pos = 6;      // 첫 예행연습(회의 첫 문장)부터 시작
+  render();
 }
 
 /* ===== 기타 ===== */
@@ -681,89 +803,104 @@ function clock(t){ $('clock').textContent = t; }
 function car(x, y, r = 0){ $('car').setAttribute('transform', `translate(${x} ${y}) rotate(${r})`); }
 function set(p){ Object.assign(S, p); render(); }
 function drawSummary(){
-  $('sumMissions').textContent = LOG.length + '개'; $('sumSaid').textContent = said + '문장';
+  $('sumMissions').textContent = missions().length + '개'; $('sumSaid').textContent = said + '문장';
   $('sumCut').textContent = cuts + '회'; $('sumCutL').textContent = `중간에 끊긴 문장 (멈춤 ${pauses}회 중 ${predicted}회 예측)`;
   $('sumWob').textContent = wobbles + '회'; $('sumTomorrow').textContent = CARDS.length + '곳';
-  $('trail').innerHTML = LOG.map(it => `<div class="tr"><div class="a">${it.at} · ${placeName(it.pos)}</div><div class="b">${it.m.icon} ${it.m.title}</div><div class="c">${it.m.val.replace(/<[^>]+>/g,'')}</div></div>`).join('');
   const b2 = $('bar2'); b2.innerHTML = '';
   ROUTE.forEach(s => { b2.insertAdjacentHTML('beforeend', `<div class="seg ${s.kind}" style="left:${s.from}%;width:${s.to - s.from}%"></div><div class="slab" style="left:${(s.from + s.to) / 2}%">${s.label}</div>`); });
   CARDS.forEach(c => b2.insertAdjacentHTML('beforeend', `<div class="pin" style="left:${c.pos}%">📌</div>`));
-  $('clist').innerHTML = CARDS.slice(-3).map(c => `<div class="card"><div class="why">${c.why}</div><div class="bad">${escapeHtml(c.bad)}</div><div class="good">${escapeHtml(c.good)}</div><div class="note">${c.note}</div><div class="again">📌 내일 ${c.place}에서 다시 묻기</div></div>`).join('');
+  $('clist').innerHTML = CARDS.slice(-3).map(c => `<div class="card"><div class="why">${c.why}${c.type ? ' · ' + c.type : ''}</div><div class="bad">${escapeHtml(c.bad)}</div><div class="good">${escapeHtml(c.good)}</div><div class="note">${c.note}</div><div class="again">📌 내일 ${c.place}에서 다시 묻기</div></div>`).join('');
+  $('rfsrc').textContent = '시연 응답';
+  const show = r => {
+    const max = Math.max(1, ...r.patterns.map(x => x.count));
+    $('rfpat').innerHTML = r.patterns.map(x => `<div class="row"><b>${escapeHtml(x.type)} ${x.count}회</b><span class="mt"><i style="width:${x.count / max * 100}%"></i></span><span class="ex">"${escapeHtml(x.example)}"</span></div>`).join('');
+    $('rfplan').innerHTML = r.plan.slice(0, 3).map(x => `<li>${escapeHtml(x)}</li>`).join('');
+  };
+  reflect().then(show);
 }
 
-/* ===== 자동 시연 (약 100초) ===== */
+/* ===== 자동 시연 (약 90초) ===== */
 const wait = ms => new Promise(r => setTimeout(r, ms));
 async function say(text){ said++; driver(escapeHtml(text)); await wait(2200); const r = demoCorrect(text);
+  TURNS.push({ practice: current ? current.m.title : '', said: text, corrected: r.corrected || '', type: r.type || '' });
   if (!r.ok) { const wrong = text.match(r.re)[0]; driver(escapeHtml(text).replace(escapeHtml(wrong), `<s>${escapeHtml(wrong)}</s>`), '→ ' + r.corrected, false); keep(text, r); }
   tutor(r.reply, r.reply_ko); }
-async function scenario(){
-  window.__auto = true; document.body.classList.add('auto');
-  Object.assign(S, INIT); LOG.length = FIRED.length = QUEUE.length = CARDS.length = 0;
+function resetAll(){
+  Object.assign(S, INIT); LOG.length = FIRED.length = QUEUE.length = CARDS.length = TURNS.length = 0;
+  LEARNER = JSON.parse(JSON.stringify(LEARNER0));
   pauses = said = cuts = wobbles = predicted = 0; current = null; lastGood = null; preQuiet = false;
   REVIEWS.forEach(r => { r.fired = r.done = false; });
-  hideTutor(); hideDriver(); drawLog(); render();
+}
+async function scenario(){
+  window.__auto = true; document.body.classList.add('auto');
+  resetAll(); hideTutor(); hideDriver(); drawLog(); render();
 
-  cap('출근길 출발. 매일 달리는 길이라, 지난 12회 기록으로 구간별 여유를 미리 압니다');
-  await wait(3200);
-  tutor('Arriving in 46 minutes. I planned today around your route.', '도착까지 46분, 오늘 길에 맞춰 수업을 짰어요');
+  cap('출발. 에이전트가 목적지·일정·지난 주행 기록·학습 기록을 읽고 오늘 수업을 짭니다');
+  await wait(1800);
+  for (const n of PLAN_NOTES()) { memo(...n); await wait(1900); }
+  tutor('Your nine o\'clock is in English. Let\'s rehearse on the way.', '9시 회의가 영어네요. 가는 길에 예행연습해요');
   await wait(3600);
 
-  cap('① 장소 복습 — 어제 표현을 틀렸던 바로 그 자리를 지날 때 다시 묻습니다');
-  clock('08:20'); car(200, 540); set({ pos:13 });
-  await wait(4600);
+  cap('① 목적지 예행연습 — 도착해서 쓸 말을 가는 길에. 직진 구간이라 짧은 질문부터');
+  clock('08:17'); car(200, 548); set({ pos:6 });
+  await wait(4800);
+  await say('Good morning, everyone. Today I want to discuss about the launch schedule.'); await wait(3600);
+
+  cap('② 기억 — 어제 표현을 틀렸던 바로 그 자리를 지날 때 다시 묻습니다');
+  hideDriver(); clock('08:20'); car(200, 536); set({ pos:13 });
+  await wait(4400);
   said++; driver('My flight was delayed.'); await wait(2000);
   current.review.done = true; current.state = 'done'; drawLog(); drawRoute(predict(S.pos), null);
   tutor('Exactly. You remembered it right here.', '정확해요. 이 자리에서 기억해냈네요'); $('mic').classList.remove('live');
-  await wait(2800);
+  await wait(2600);
 
-  cap('② 길 예측 — 19초 뒤 합류 구간. 12번 중 11번 바빴던 곳이라 새 질문을 시작하지 않습니다');
+  cap('③ 안전 게이트 — 19초 뒤 합류 구간. 에이전트가 무엇을 고르든 규칙이 먼저 새 질문을 막습니다');
   hideDriver(); clock('08:22'); set({ pos:17.3 });
   tutor('Merge coming up. I\'ll wait for you.', '곧 합류 구간이에요. 기다릴게요');
-  await wait(4600);
+  await wait(4400);
   cap('예측대로 방향지시등이 켜집니다. 튜터는 이미 말을 마쳐서 끊긴 문장이 없습니다');
   set({ turn:'left', steer:-12, pos:18.5 }); await wait(1200);
-  set({ steer:-34, pos:20 }); car(192, 520, -10); await wait(2400);
-  set({ turn:'off', steer:0, pos:24 }); car(200, 505); await wait(1800);
+  set({ steer:-34, pos:20 }); car(192, 520, -10); await wait(2200);
+  set({ turn:'off', steer:0, pos:24 }); car(200, 505); await wait(1600);
   hideTutor();
 
-  cap('③ 상황 엔진 — 정체로 도착 예정이 09:00 → 09:12. 늦는다는 사실이 그대로 상황극이 됩니다');
+  cap('④ 다시 계획 — 정체로 도착 09:12. 회의에 늦게 됐으니, 늦는다고 알리는 말부터 연습합니다');
   clock('08:26'); set({ speed:18, delayMin:12, pos:30 }); eta(50);
-  await wait(5000);
-  await say("Hi, I'm stuck in traffic. I will late 12 minutes."); await wait(3000);
+  await wait(5200);
+  await say("Hi Wei, I'm stuck in traffic. I will late 12 minutes."); await wait(3400);
 
-  cap('④ 안전 되먹임 — 다시 말하는 동안 조향이 잘게 흔들립니다. 말하기가 운전에 부담이라는 신호');
+  cap('⑤ 안전 게이트 — 다시 말하는 동안 조향이 잘게 흔들립니다. 말하기가 운전에 부담이라는 신호');
   said++; driver("I'm going to be... about twelve...", '', true);
   await wait(1400); set({ wobble:3, steer:3 }); await wait(700); set({ wobble:6, steer:-4 });
   await wait(1500);
-  cap('튜터가 스스로 답을 요구하지 않고 듣기로 낮춥니다');
-  hideDriver(); await wait(3200);
-  cap('조향이 안정되면 다시 말하기로 돌아옵니다');
+  cap('답을 요구하지 않고 듣기로 낮춥니다. 조향이 안정되면 다시 말하기로 돌아옵니다');
+  hideDriver(); await wait(3400);
   set({ wobble:1, steer:0 }); await wait(900);
   said++; driver("I'm going to be about 12 minutes late.", '', true); await wait(2000);
-  tutor('Perfect. Your manager says: "No problem, drive safe."', '완벽해요. 팀장님이 "괜찮아요, 조심히 와요"래요'); $('mic').classList.remove('live');
-  await wait(3000);
+  tutor('Perfect. Wei says: "No worries, see you soon."', '완벽해요. Wei가 "괜찮아요, 곧 봬요"래요'); $('mic').classList.remove('live');
+  await wait(2800);
 
-  cap('비가 와서 와이퍼가 고속으로 — 주의 구간이라 새 상황을 듣기 버전으로 줍니다');
-  hideDriver(); clock('08:38'); $('weather').textContent = '비 8°C'; nav('1.1km', '테헤란로 직진', '↑'); car(310, 400);
-  set({ wiper:'high', speed:45, pos:52 }); await wait(4800);
-  set({ wiper:'low' }); current.state = 'done'; drawLog(); await wait(600);
+  cap('⑥ 예약해 둔 신호(평균 62초 정차). 에이전트가 고른 문형은 이번 주 다섯 번 빠뜨린 be동사');
+  hideDriver(); clock('08:44'); nav('1.1km', '테헤란로 직진', '↑'); car(310, 400);
+  set({ speed:0, brake:true, pos:61 }); await wait(5200);
+  said++; driver("Sorry I'm late. Today we're going to go over the launch schedule.", '', true); await wait(2600);
+  TURNS.push({ practice: current.m.title, said: "Sorry I'm late. Today we're going to go over the launch schedule.", corrected:'', type:'' });
+  tutor('Great. You kept "I\'m" and "we\'re" this time.', '좋아요. 이번엔 be동사를 빠뜨리지 않았어요'); $('mic').classList.remove('live');
+  memo('🧠', ['학습자.기록쓰기'], 'be동사 문형 성공 1회', '내일 긴 말하기에서 같은 문형을 한 번 더 확인');
+  await wait(3400);
+  set({ speed:40, brake:false, pos:66 }); hideDriver(); await wait(500);
 
-  cap('예약해 둔 신호(평균 62초 정차)에 도착 + 연료 12% 경고 → 긴 말하기 미션을 여기서');
-  clock('08:44'); set({ speed:0, brake:true, fuel:12, pos:61 }); await wait(4600);
-  await say('Full please, and I pay with card.'); await wait(3400);
-  set({ speed:40, brake:false, pos:66 }); hideDriver(); await wait(600);
-
-  cap('도착 2분 전, 오늘 운전에서 나온 표현만 골라 복습합니다');
+  cap('도착 2분 전 — 회의 첫 30초를 통째로 한 번 더 듣습니다');
   clock('09:10'); eta(2); nav('400m', '목적지 주차장 진입', '↑'); car(310, 270); current.state = 'done'; drawLog();
   set({ pos:91 });
   $('sit').classList.add('base');
   $('sitval').textContent = '도착 2분 전'; $('sitsrc').textContent = 'NaviHelper · 남은 시간';
-  $('sittitle').textContent = '오늘 운전에서 나온 표현 복습'; $('sitmode').textContent = '지각 전화 · 비 · 주유소';
-  tutor('Review: "I\'m going to be about 12 minutes late." "Fill it up, please."', '복습: 오늘 출근길에서 나온 표현'); await wait(4800);
+  $('sittitle').textContent = '회의 첫 30초 통째로 리허설'; $('sitmode').textContent = '인사 · 사과 · 안건';
+  tutor('Listen: "Sorry I\'m late. Today we\'re going to go over the launch schedule."', '듣기: 도착해서 바로 쓸 두 문장'); await wait(4800);
 
-  cap('주차 후에만 화면 표시. 오늘 틀린 표현은 틀린 자리에 묶여 내일 같은 자리에서 다시 나옵니다');
-  hideTutor(); drawSummary(); set({ speed:0, park:true, pos:100 }); await wait(7000);
-  cap('드라이브 스픽 — 오늘 달린 길이 오늘의 회화 수업이 됩니다');
+  cap('주차 후 — 에이전트가 오늘 대화를 되돌아보고 학습자 기록과 내일 계획을 고칩니다');
+  hideTutor(); drawSummary(); set({ speed:0, park:true, pos:100 }); await wait(7500);
+  cap('드라이브 스픽 — 가는 곳에서 쓸 말을, 가는 길에 연습합니다');
   await wait(3200);
   window.__done = true;
 }
@@ -788,8 +925,27 @@ document.querySelectorAll('.btn[data-a]').forEach(b => b.onclick = () => {
 });
 $('livego').onclick = goLive;
 
+/* 화면이 1920x1080 이 아니면(차량 디스플레이, 에뮬레이터) 비율을 지켜 맞춤 */
+function fit(){
+  const k = Math.min(innerWidth / 1920, innerHeight / 1080);
+  document.body.style.transformOrigin = '0 0';
+  document.body.style.transform = Math.abs(k - 1) < 0.01 ? '' : `scale(${k})`;
+}
+addEventListener('resize', fit); fit();
+
+/* Android 앱이 Pleos Connect SDK(Vehicle·NaviHelper) 신호를 받을 때마다 호출. 바뀐 값만 옴 */
+window.onPleos = patch => {
+  if (!document.body.classList.contains('pleos')) {
+    document.body.classList.add('pleos');
+    $('rigsrc').innerHTML = '<b>Pleos Connect 신호 수신 중</b> · Vehicle 2.3.2 · NaviHelper 3.0.5 (아래 버튼은 SDK가 주지 않는 값만 보탭니다)';
+  }
+  delete patch.source;
+  Object.assign(S, patch); render();
+};
+
 render();
 if (new URLSearchParams(location.search).has('auto')) scenario();
+else PLAN_NOTES().forEach(n => memo(...n));
 </script>
 </body>
 </html>

@@ -49,5 +49,8 @@ android {
 }
 
 dependencies {
+    // Pleos Connect SDK: 차량 신호(Vehicle)와 내비 연동(NaviHelper)
+    implementation("ai.pleos.playground:Vehicle:2.3.2")
+    implementation("ai.pleos.playground:NaviHelper:3.0.5")
     testImplementation("junit:junit:4.13.2")
 }

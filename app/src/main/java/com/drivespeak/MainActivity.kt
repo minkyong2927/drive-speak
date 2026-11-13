@@ -10,6 +10,7 @@ import com.drivespeak.load.LoadEngine
 import com.drivespeak.load.NavGuidance
 import com.drivespeak.load.TurnSignal
 import com.drivespeak.load.VehicleSignals
+import com.drivespeak.pleos.PleosSignalSource
 import com.drivespeak.situation.PlaceType
 import com.drivespeak.situation.SituationDetector
 import com.drivespeak.situation.SituationSignals
@@ -18,14 +19,18 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * 1차 버전: 웹 프로토타입 화면을 띄우고, 여유도 판단만 Kotlin 엔진(LoadEngine)이 맡음.
- * 프로토타입의 시뮬레이션 신호 -> DriveSpeak.evaluate() -> 단계·근거 -> 화면.
- * 2차에서 시뮬레이션 대신 Pleos Connect SDK 신호를 VehicleSignalSource로 연결.
+ * 화면은 웹 프로토타입, 판단은 Kotlin 엔진(LoadEngine, SituationDetector, StabilityMonitor).
+ *
+ * 신호는 두 갈래:
+ * - Pleos Connect 기기: PleosSignalSource 가 Vehicle·NaviHelper SDK 신호를 화면 상태로 넘김
+ * - 그 외 기기: 화면 아래 시연용 신호 패널
+ * 어느 쪽이든 상태 S -> DriveSpeak.evaluate()/detect() -> 단계·상황 -> 화면.
  */
 class MainActivity : Activity() {
 
     private val engine = LoadEngine()
     private val situations = SituationDetector()
+    private var pleos: PleosSignalSource? = null
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,10 +42,26 @@ class MainActivity : Activity() {
         web.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView, url: String) {
                 view.evaluateJavascript(BRIDGE_JS, null)
+                startPleos(view)
             }
         }
         setContentView(web)
         web.loadUrl("file:///android_asset/index.html")
+    }
+
+    /** Pleos Connect 기기면 실제 차량·내비 신호를 화면 상태에 흘려 넣음 */
+    private fun startPleos(web: WebView) {
+        if (pleos != null) return
+        val source = PleosSignalSource(this) { patch ->
+            runOnUiThread { web.evaluateJavascript("window.onPleos && onPleos($patch)", null) }
+        }
+        if (source.start()) pleos = source
+    }
+
+    override fun onDestroy() {
+        pleos?.stop()
+        pleos = null
+        super.onDestroy()
     }
 
     inner class Bridge {
